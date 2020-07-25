@@ -6,5 +6,5 @@ python3 y pip3 son nencesarios para instalar los requerimientos
 
 `pip3 install -r requirements.txt`
 
-
 ## Uso
+`./run`
