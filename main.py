@@ -1,29 +1,67 @@
-from random import choice
 from experta import *
-
-
-class PreferedLandscape(Fact):
-    """
-    Info about the prefered landscape.
-    possible options:
-    - mountain
-    - beach
-    - city
-    """
-    pass
-
+from facts import *
 
 class TuristAgent(KnowledgeEngine):
-    @Rule(PreferedLandscape(landscape='mountain'))
-    def mountain(self):
-        print("Bariloche")
 
-    @Rule(PreferedLandscape(landscape='beach'))
-    def red_light(self):
-        print("Mar del plata")
+    @Rule(InfoCliente(duracion="Poca", 
+                      presupuesto="Bajo", 
+                      acompanantes=MATCH.ac & P(lambda ac: ac <= 3), 
+                      tipo_acomp="Pareja", 
+                      pref_dist="Mucha", 
+                      pref_cant_destinos="Pocos", 
+                      pref_excursiones="Pocas", 
+                      pref_naturaleza="Mucha"))
+    def nuevo_paquete_1(self, ac):
+        dests = ["Ushuaia"]
+        paquete = PaqueteViaje(nombre="Viaje a Ushuaia", duracion=3, personas=ac+1, costo=7000*ac, estadias=dests, distancia="Poca", actividades="Pocas", naturaleza="Mucha")
+        self.declare(paquete)
+
+    @Rule(InfoCliente(duracion="Poca", 
+                      presupuesto="Bajo", 
+                      acompanantes=MATCH.ac & P(lambda ac: ac <= 3), 
+                      tipo_acomp="Pareja", 
+                      pref_dist="Mucha",
+                      pref_excursiones="Pocas", 
+                      pref_naturaleza="Mucha"))
+    def nuevo_paquete_2(self, ac):
+        dests = ["Mendoza", "San Rafael", "San Juan"]
+        paquete = PaqueteViaje(nombre="Bordeando de la cordillera", duracion=10, personas=ac+1, costo=12000*ac, estadias=dests, distancia="Media", actividades="Muchas", naturaleza="Mucha")
+        self.declare(paquete)
+
+    @Rule(InfoCliente(duracion="Media", 
+                      presupuesto="Medio", 
+                      acompanantes=MATCH.ac & P(lambda ac: ac >= 3), 
+                      tipo_acomp="Amigos", 
+                      pref_dist=MATCH.dist & P(lambda dist: dist == "Poca" or dist == "Media"),
+                      pref_cant_destinos=MATCH.dest & P(lambda dest: dest == "Pocos" or dest == "Media")))
+    def nuevo_paquete_6(self, ac):
+        dests = ["Mar del Plata"]
+        paquete = PaqueteViaje(nombre="Costa Argentina", duracion=10, personas=ac+1, costo=2500*ac, estadias=dests, distancia="Poca", actividades="Muchas", naturaleza="Baja")
+        self.declare(paquete)
+
+    @Rule(PaqueteViaje(nombre=MATCH.nomb, duracion=MATCH.dur, personas=MATCH.pers, costo=MATCH.cost, estadias=MATCH.est, distancia=MATCH.dist, actividades=MATCH.act, naturaleza=MATCH.nat))
+    def paquete_apropiado(self, nomb, dur, pers, cost, est, dist, act, nat):
+        print("Paquete apropiado para cliente:")
+        print("\t Personas: {}".format(pers))
+        print("\t Duracion: {} noches".format(dur))
+        print("\t Costo total: ${}".format(cost))
+        print("\t Estadias: {}".format(list(est)))
+        print("\t Distancia: {}".format(dist))
+        print("\t Actividades: {}".format(act))
+        print("\t Naturaleza: {}".format(nat))
 
 engine = TuristAgent()
 engine.reset()
-prefered_landscape = PreferedLandscape(landscape = 'beach')
-engine.declare(prefered_landscape)
+cliente_ej = InfoCliente(
+    edad=35,
+    duracion="Poca", 
+    presupuesto="Bajo", 
+    acompanantes=1, 
+    tipo_acomp="Pareja", 
+    pref_dist="Mucha", 
+    pref_cant_destinos="Pocos", 
+    pref_excursiones="Pocas", 
+    pref_naturaleza="Mucha"
+)
+engine.declare(cliente_ej)
 engine.run()
