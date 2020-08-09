@@ -1,7 +1,89 @@
 from experta import *
 from facts import *
+from flask import Flask
+from flask import request
+from flask import render_template
+from flask import send_file
+import os
+
+####### WS #######
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return render_template('init.html')
+
+@app.route("/handle_data")
+def handle_data():
+    """
+    age=12
+    duration=short
+    budget=short
+    partners=12
+    companion_type=partner
+    distance_preference=partner
+    destiny_count=partner
+    excursions_preference=partner
+    nature_preference=partner
+    """
+
+    age = request.args.get('age')
+    duration = request.args.get('duration')
+    budget = request.args.get('budget')
+    partners = request.args.get('partners')
+    companion_type = request.args.get('companion_type')
+    distance_preference = request.args.get('distance_preference')
+    destiny_count = request.args.get('destiny_count')
+    excursions_preference = request.args.get('excursions_preference')
+    nature_preference = request.args.get('nature_preference')
+
+    print(f"""
+    Params
+        age={age}
+        duration={duration}
+        budget={budget}
+        partners={partners}
+        companion_type={companion_type}
+        distance_preference={distance_preference}
+        destiny_count={destiny_count}
+        excursions_preference={excursions_preference}
+        nature_preference={nature_preference}
+    """)
+
+    engine = TuristAgent()
+    engine.reset()
+    cliente_ej = InfoCliente(
+        edad=age,
+        duracion=duration, 
+        presupuesto=budget, 
+        acompanantes=int(partners), 
+        tipo_acomp="Pareja", 
+        pref_dist="Mucha", 
+        pref_cant_destinos="Pocos", 
+        pref_excursiones="Pocas", 
+        pref_naturaleza="Mucha"
+    )   
+    engine.declare(cliente_ej)
+    engine.run()
+
+    if len(engine.packages) == 0:
+        return render_template('zrp.html')
+
+    new_packs = []
+
+    for pack in engine.packages:
+        new_packs.append(pack)
+
+    return render_template('response.html', packages=new_packs)
+
+
+###### ENGINNE #######
 
 class TuristAgent(KnowledgeEngine):
+    def __init__(self):
+        super().__init__()
+        self.packages = []
 
     @Rule(InfoCliente(duracion="Poca", 
                       presupuesto="Bajo", 
@@ -41,6 +123,7 @@ class TuristAgent(KnowledgeEngine):
 
     @Rule(PaqueteViaje(nombre=MATCH.nomb, duracion=MATCH.dur, personas=MATCH.pers, costo=MATCH.cost, estadias=MATCH.est, distancia=MATCH.dist, actividades=MATCH.act, naturaleza=MATCH.nat))
     def paquete_apropiado(self, nomb, dur, pers, cost, est, dist, act, nat):
+        self.packages.append(PaqueteViaje(nombre=nomb, duracion=dur, personas=pers, costo=cost, estadias=est, distancia=dist, actividades=act, naturaleza=nat))
         print("Paquete apropiado para cliente:")
         print("\t Personas: {}".format(pers))
         print("\t Duracion: {} noches".format(dur))
@@ -50,18 +133,6 @@ class TuristAgent(KnowledgeEngine):
         print("\t Actividades: {}".format(act))
         print("\t Naturaleza: {}".format(nat))
 
-engine = TuristAgent()
-engine.reset()
-cliente_ej = InfoCliente(
-    edad=35,
-    duracion="Poca", 
-    presupuesto="Bajo", 
-    acompanantes=1, 
-    tipo_acomp="Pareja", 
-    pref_dist="Mucha", 
-    pref_cant_destinos="Pocos", 
-    pref_excursiones="Pocas", 
-    pref_naturaleza="Mucha"
-)
-engine.declare(cliente_ej)
-engine.run()
+
+if __name__ == "__main__":
+    app.run(debug=True)
