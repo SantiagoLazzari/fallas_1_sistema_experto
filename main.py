@@ -58,9 +58,9 @@ def handle_data():
         duracion=duration, 
         presupuesto=budget, 
         acompanantes=int(partners), 
-        tipo_acomp="Pareja", 
-        pref_dist="Mucha", 
-        pref_cant_destinos="Pocos", 
+        tipo_acomp=companion_type, 
+        pref_dist=distance_preference, 
+        pref_cant_destinos=destiny_count, 
         pref_excursiones="Pocas", 
         pref_naturaleza="Mucha"
     )   
