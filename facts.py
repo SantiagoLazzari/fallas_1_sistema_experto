@@ -3,8 +3,7 @@ from experta import Fact
 class PaqueteViaje(Fact):
     """
     Informacion del paquete de viaje:
-        PaqueteViaje(nombre="Pack 1", duracion=3, personas=2, costo=10000, estadias=["Lugar1", "Lugar2"], distancia="mucha", actividades="pocas", naturaleza="mucha")
-)
+        PaqueteViaje(nombre="Pack 1", duracion=3, personas=2, costo=10000, estadias=["Lugar1", "Lugar2"], distancia="mucha", actividades="pocas", naturaleza="mucha"))
     """
     pass
 
