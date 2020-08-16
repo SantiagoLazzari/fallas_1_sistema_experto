@@ -85,7 +85,7 @@ class TuristAgent(KnowledgeEngine):
         super().__init__()
         self.packages = []
 
-    @Rule(InfoCliente(duracion="Poca", 
+    @Rule(InfoCliente(duracion="Media", 
                       presupuesto="Bajo", 
                       acompanantes=MATCH.ac & P(lambda ac: ac <= 3), 
                       tipo_acomp="Pareja", 
@@ -110,6 +110,7 @@ class TuristAgent(KnowledgeEngine):
         paquete = PaqueteViaje(nombre="Bordeando de la cordillera", duracion=10, personas=ac+1, costo=12000*ac, estadias=dests, distancia="Media", actividades="Muchas", naturaleza="Mucha")
         self.declare(paquete)
 
+
     @Rule(InfoCliente(duracion="Media", 
                       presupuesto="Medio", 
                       acompanantes=MATCH.ac & P(lambda ac: ac >= 3), 
@@ -120,6 +121,18 @@ class TuristAgent(KnowledgeEngine):
         dests = ["Mar del Plata"]
         paquete = PaqueteViaje(nombre="Costa Argentina", duracion=10, personas=ac+1, costo=2500*ac, estadias=dests, distancia="Poca", actividades="Muchas", naturaleza="Baja")
         self.declare(paquete)
+
+    @Rule(InfoCliente(duracion="Media", 
+                      presupuesto="Alto", 
+                      acompanantes=MATCH.ac & P(lambda ac: ac == 2), 
+                      tipo_acomp="Pareja", 
+                      pref_dist="Media",
+                      pref_cant_destinos=MATCH.dest & P(lambda dest: dest == "Pocos" or dest == "Media")))
+    def nuevo_paquete_3(self, ac):
+        dests = ["Iguazú", "Salta"]
+        paquete = PaqueteViaje(nombre="Cataratas del norte", duracion=7, personas=ac+1, costo=20000*ac, estadias=dests, distancia="Media", actividades="Muchas", naturaleza="Alta")
+        self.declare(paquete)
+
 
     @Rule(PaqueteViaje(nombre=MATCH.nomb, duracion=MATCH.dur, personas=MATCH.pers, costo=MATCH.cost, estadias=MATCH.est, distancia=MATCH.dist, actividades=MATCH.act, naturaleza=MATCH.nat))
     def paquete_apropiado(self, nomb, dur, pers, cost, est, dist, act, nat):
